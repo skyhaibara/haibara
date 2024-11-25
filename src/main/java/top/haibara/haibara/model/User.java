@@ -4,10 +4,12 @@ import jakarta.persistence.*;
 import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import java.io.Serializable;
+
 @Data
 @Entity
 @Table(name = "users")
-public class User {
+public class User implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -18,7 +20,6 @@ public class User {
     @Column(name = "nickname")
     private String nickname;
 
-    @JsonIgnore
     @Column(name = "password")
     private String password;
 

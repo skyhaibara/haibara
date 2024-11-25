@@ -84,7 +84,7 @@ export default function Comments({ id }: { id: number }) {
                 }}>
                     <TextField
                         maxRows="20"
-                        minRows="2"
+                        minRows="1"
                         multiline
                         fullWidth
                         value={commentSend}

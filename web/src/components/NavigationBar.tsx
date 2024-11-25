@@ -157,7 +157,7 @@ export default function NavigationBar() {
                             昵称: {authStore.user?.nickname ? authStore.user?.nickname : "无"}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
-                            密码: 没有密码
+                            密码: 123123
                         </Typography>
                         <Divider sx={{ width: "100%" }} />
 

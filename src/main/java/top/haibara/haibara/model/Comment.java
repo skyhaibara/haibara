@@ -11,7 +11,7 @@ import java.io.Serializable;
 @Entity
 @Table(name = "comments")
 
-public class Comment {
+public class Comment  implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
