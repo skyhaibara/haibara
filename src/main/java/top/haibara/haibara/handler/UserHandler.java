@@ -58,6 +58,7 @@ public class UserHandler {
             return Response.status(Response.Status.BAD_REQUEST).entity(res).build();
         }
         String token = JwtUtil.generateToken(user.getId());
+        user.setPassword(null);
         Map<String, Object> res = new HashMap<>();
         res.put("code", Response.Status.OK);
         res.put("token", token);

@@ -46,7 +46,6 @@ public class CommentRepository {
         EntityManager em = HibernateUtil.getEntityManager();
         Comment comment = null;
         try {
-            // 使用 em.find 查询主键，不需要事务
             comment = em.find(Comment.class, id);
             if (comment == null) {
                 throw new RuntimeException("comment_not_found");

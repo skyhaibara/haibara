@@ -2,7 +2,7 @@
 
 import { useParams } from "react-router-dom";
 import { Suspense, useEffect, useState } from "react";
-import { Grid, Typography, Box, Paper, Container, Skeleton } from "@mui/material";
+import { Grid, Typography, Box, Paper, Container, Skeleton, } from "@mui/material";
 import MarkdownRenderer from "@/components/MarkdownRender";
 import Comments from "@/components/Comments.tsx";
 import { api } from "@/utils/axios.ts";
