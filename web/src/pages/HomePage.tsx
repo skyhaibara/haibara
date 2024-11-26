@@ -28,8 +28,9 @@ export default function HomePage() {
     const siteStore = useSiteStore();
     const navigator = useNavigate();
     const [users, setUsers] = useState<Array<string>>();
-
     const [articles, setArticles] = useState<Array<Article>>();
+    const [page, setPage] = useState(1);
+    const [pageSize] = useState(10);
 
     useEffect(() => {
         api().get("/articles").then(
@@ -42,6 +43,22 @@ export default function HomePage() {
             },
         );
     }, []);
+
+    useEffect(() => {
+        // 更新API调用以支持分页
+        api().get(`/articles/paginated`, {
+            params: { page, size: pageSize }
+        }).then(
+            (res) => {
+                const r = res.data;
+                setArticles(r.data?.reverse());
+                let userName = r.data.map((item: any) => item.author.username);
+                userName = userName.reverse();
+                setUsers(userName);
+            },
+        );
+    }, [page, pageSize]);
+
 
 
     return (
@@ -179,6 +196,20 @@ export default function HomePage() {
                         ))}
                     </List>
                 )}
+                <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 2 }}>
+                    <Button
+                        onClick={() => setPage(page - 1)}
+                        disabled={page === 1}
+                        sx={{ marginRight: 1 }}
+                    >
+                        上一页
+                    </Button>
+                    <Button
+                        onClick={() => setPage(page + 1)}
+                    >
+                        下一页
+                    </Button>
+                </Box>
             </Paper>
         </Container>
     );

@@ -4,11 +4,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.io.Serializable;
+import java.util.List;
 
 @Data
 @Entity
 @Table(name = "articles")
 public class Article implements Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -23,11 +25,15 @@ public class Article implements Serializable {
     @JoinColumn(name = "author_id")
     private User author;
 
+    @Transient
     @Column(name = "author_id", insertable = false, updatable = false)
     @JsonProperty("author_id")
     private Integer authorId;
 
+
     @Column(name = "created_at")
+    @Temporal(TemporalType.TIMESTAMP)
     @JsonProperty("created_at")
     private Long createdAt;
+
 }
