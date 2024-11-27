@@ -84,12 +84,12 @@ public class ArticleHandler {
         return Response.status(Response.Status.OK).entity(res).build();
     }
     @GET
-    @Path("/paginated")
-    @Secured({"admin"})
+    @Path("/")
+    @Secured({"admin","user"})
     @Produces(MediaType.APPLICATION_JSON)
     public Response getPaginatedArticles(
             @QueryParam("page") @DefaultValue("1") int page,
-            @QueryParam("size") @DefaultValue("10") int size) {
+            @QueryParam("size") @DefaultValue("5") int size) {
         if (page < 1 || size < 1) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity("Page number and size must be greater than 0")

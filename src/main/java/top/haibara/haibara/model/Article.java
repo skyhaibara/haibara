@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.io.Serializable;
-import java.util.List;
 
 @Data
 @Entity
@@ -29,8 +28,7 @@ public class Article implements Serializable {
     @Column(name = "author_id", insertable = false, updatable = false)
     @JsonProperty("author_id")
     private Integer authorId;
-
-
+    
     @Column(name = "created_at")
     @Temporal(TemporalType.TIMESTAMP)
     @JsonProperty("created_at")
