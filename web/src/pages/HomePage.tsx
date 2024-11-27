@@ -1,5 +1,3 @@
-// 主界面.显示所有文章的列表, 可以跳转到 ShowArticlePage.tsx 以显示对应的文章内容. 也可以跳转到登陆或者注册界面.
-
 import { useEffect, useState } from "react";
 import {
     Box,
@@ -15,6 +13,8 @@ import {
     Card,
     CardContent,
     Stack,
+    Pagination,
+    CircularProgress
 } from "@mui/material";
 import { Article } from "@/models/article.ts";
 import { Create, Add } from "@mui/icons-material";
@@ -27,39 +27,32 @@ export default function HomePage() {
     const authStore = useAuthStore();
     const siteStore = useSiteStore();
     const navigator = useNavigate();
-    const [users, setUsers] = useState<Array<string>>();
-    const [articles, setArticles] = useState<Array<Article>>();
-    const [page, setPage] = useState(1);
-    const [pageSize] = useState(10);
+    const [users, setUsers] = useState<Array<string>>([]);
+    const [articles, setArticles] = useState<Array<Article>>([]);
+    const [pageSize] = useState(3); // 每页条数（固定为 3）
+    const [totalItems, setTotalItems] = useState(0); // 总条数
+    const [loading, setLoading] = useState(false);
+    const [page, setPage] = useState<number>(1);  // 页码
+    const [totalPages, setTotalPages] = useState<number>(0); // 总页数
+
 
     useEffect(() => {
-        api().get("/articles").then(
-            (res) => {
+        setLoading(true); // 开始加载数据
+        api()
+            .get("/articles", {
+                params: { page: page - 1, size: pageSize } // 后端接口要求 page 从 0 开始
+            })
+            .then((res) => {
                 const r = res.data;
-                setArticles(r.data?.reverse());
+                setArticles(r.data || []);
                 let userName = r.data.map((item: any) => item.author.username);
-                userName = userName.reverse();
+                userName = userName.reverse(); // 反转用户名数组，使得与文章顺序一致
                 setUsers(userName);
-            },
-        );
-    }, []);
-
-    useEffect(() => {
-        // 更新API调用以支持分页
-        api().get(`/articles/paginated`, {
-            params: { page, size: pageSize }
-        }).then(
-            (res) => {
-                const r = res.data;
-                setArticles(r.data?.reverse());
-                let userName = r.data.map((item: any) => item.author.username);
-                userName = userName.reverse();
-                setUsers(userName);
-            },
-        );
+                setTotalPages(r.totalPages || 0);
+                setTotalItems(r.totalItems || 0);
+            })
+            .finally(() => setLoading(false)); // 数据加载完成
     }, [page, pageSize]);
-
-
 
     return (
         <Container maxWidth="md" sx={{ py: 4 }}>
@@ -78,7 +71,8 @@ export default function HomePage() {
                         fontWeight: 600,
                         mb: 4,
                         color: "primary.main",
-                    }}>
+                    }}
+                >
                     所有文章
                 </Typography>
 
@@ -103,7 +97,11 @@ export default function HomePage() {
 
             {/* 文章列表 */}
             <Paper elevation={2} sx={{ borderRadius: 2 }}>
-                {!articles?.length ? (
+                {loading ? (
+                    <Box sx={{ p: 4, textAlign: "center" }}>
+                        <CircularProgress />
+                    </Box>
+                ) : !articles?.length ? (
                     <Box sx={{ p: 4, textAlign: "center" }}>
                         <Typography color="text.secondary" sx={{ mb: 2 }}>
                             还没有写过文章
@@ -166,9 +164,7 @@ export default function HomePage() {
                                                     <ListItemText
                                                         secondary={users ? "Write BY: " + users[index] : ""}
                                                     />
-
                                                 </Button>
-
 
                                                 {authStore?.user?.role === "admin" && (
                                                     <IconButton
@@ -196,21 +192,26 @@ export default function HomePage() {
                         ))}
                     </List>
                 )}
-                <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 2 }}>
-                    <Button
-                        onClick={() => setPage(page - 1)}
-                        disabled={page === 1}
-                        sx={{ marginRight: 1 }}
-                    >
-                        上一页
-                    </Button>
-                    <Button
-                        onClick={() => setPage(page + 1)}
-                    >
-                        下一页
-                    </Button>
+
+                {/* 分页控件 */}
+                <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+                    <Pagination
+                        count={totalPages} // 总页数
+                        page={page} // 当前页
+                        onChange={(_, value) => setPage(value)} // 页码改变事件，_ 表示忽略 event
+                        color="primary"
+                        variant="outlined"
+                        shape="rounded"
+                    />
                 </Box>
             </Paper>
+
+            {/* 分页信息 */}
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mt: 2 }}>
+                <Typography variant="body2" sx={{ mx: 2 }}>
+                    共 {totalItems} 篇文章，当前第 {page} 页 / 共 {totalPages} 页
+                </Typography>
+            </Box>
         </Container>
     );
 }

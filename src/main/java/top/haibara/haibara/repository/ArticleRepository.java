@@ -74,28 +74,33 @@ public class ArticleRepository {
         }
     }
 
-    public List<Article> findPaginatedArticles(int page, int size) throws PersistenceException {
+    public List<Article> findPaginatedArticles(int page, int size) {
         if (page < 1 || size < 1) {
             throw new IllegalArgumentException("Page number and size must be greater than 0");
         }
 
         EntityManager em = HibernateUtil.getEntityManager();
-        List<Article> articles = null;
         try {
-            em.getTransaction().begin();
-            articles = em.createQuery("SELECT a FROM Article a ORDER BY a.id", Article.class)
-                    .setFirstResult((page - 1) * size) // 设置查询的起始位置
-                    .setMaxResults(size) // 设置查询的最大结果数
-                    .getResultList();
-            em.getTransaction().commit();
-        } catch (PersistenceException e) {
-            if (em.getTransaction().isActive()) {
-                em.getTransaction().rollback();
-            }
+            return em.createQuery("SELECT a FROM Article a ORDER BY a.id", Article.class)
+                    .setFirstResult((page - 1) * size)  // 设置查询的起始位置
+                    .setMaxResults(size)                // 设置每页的条数
+                    .getResultList();                   // 执行查询并返回结果
+        } catch (Exception e) {
+            // 你可以根据需要进一步细化异常捕获
             throw new RuntimeException("Failed to retrieve paginated articles", e);
         } finally {
-            em.close();
+            em.close();  // 确保在操作完毕后关闭 EntityManager
         }
-        return articles;
+    }
+
+    public long countTotalArticles() {
+        EntityManager em = HibernateUtil.getEntityManager();
+        try {
+            // 返回文章总数
+            return em.createQuery("SELECT COUNT(a) FROM Article a", Long.class)
+                    .getSingleResult();  // 执行查询并返回单一结果
+        } finally {
+            em.close();  // 确保关闭 EntityManager
+        }
     }
 }
