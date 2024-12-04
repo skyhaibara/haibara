@@ -55,7 +55,6 @@ public class CommentHandler {
                     .entity(Map.of("error", "Comment not found"))
                     .build();
         }
-
         try {
             commentRepository.delete(comment);
         } catch (Exception e) {

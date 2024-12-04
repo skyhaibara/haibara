@@ -30,13 +30,20 @@ public class ArticleHandler {
     @GET
     @Path("/")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getAllArticles() {
-        List<Article> articles = articleRepository.findAll();
+    public Response getAllArticles(@QueryParam("page") int page) {
+        int pageSize = 3;
+        int offset = (page) * pageSize;
+        List<Article> articles = articleRepository.findArticlesWithPagination(offset,3);
+        long totalItems = articleRepository.countTotalArticles();
+        int totalPages = (int) Math.ceil((double) totalItems / pageSize);
         Map<String, Object> res= new HashMap<>();
         res.put("code", Response.Status.OK);
         res.put("data", articles);
+        res.put("totalPages", totalPages);
+        res.put("totalItems", totalItems);
         return Response.status(Response.Status.OK).entity(res).build();
     }
+
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -57,7 +64,7 @@ public class ArticleHandler {
         res.put("data", comments);
         return Response.status(Response.Status.OK).entity(res).build();
     }
-    @POST //创建Article
+    @POST
     @Path("/")
     @Secured({"admin"})
     @Consumes(MediaType.APPLICATION_JSON)
@@ -71,7 +78,7 @@ public class ArticleHandler {
         res.put("code", Response.Status.OK);
         return Response.status(Response.Status.OK).entity(res).build();
     }
-    @PUT //更新Article
+    @PUT
     @Path("/")
     @Secured({"admin"})
     @Consumes(MediaType.APPLICATION_JSON)
@@ -79,6 +86,18 @@ public class ArticleHandler {
     public Response updateArticle(Article article, @Context SecurityContext securityContext) {
         article.setAuthorId(Integer.valueOf(securityContext.getUserPrincipal().getName()));
         articleRepository.update(article);
+        Map<String, Object> res = new HashMap<>();
+        res.put("code", Response.Status.OK);
+        return Response.status(Response.Status.OK).entity(res).build();
+    }
+    @DELETE
+    @Path("/")
+    @Secured({"admin"})
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deleteArticle(Article article, @Context SecurityContext securityContext) {
+        article.setAuthorId(Integer.valueOf(securityContext.getUserPrincipal().getName()));
+        articleRepository.delete(article.getId());
         Map<String, Object> res = new HashMap<>();
         res.put("code", Response.Status.OK);
         return Response.status(Response.Status.OK).entity(res).build();

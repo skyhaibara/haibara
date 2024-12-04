@@ -13,4 +13,5 @@ export interface Article {
     created_at?: number;
     title?: string;
     author?:User
+    totalItems?:string
 }

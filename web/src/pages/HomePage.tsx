@@ -27,31 +27,31 @@ export default function HomePage() {
     const authStore = useAuthStore();
     const siteStore = useSiteStore();
     const navigator = useNavigate();
-    const [users, setUsers] = useState<Array<string>>([]);
-    const [articles, setArticles] = useState<Array<Article>>([]);
-    const [pageSize] = useState(3); // 每页条数（固定为 3）
-    const [totalItems, setTotalItems] = useState(0); // 总条数
+    const [users, setUsers] = useState<Array<string>>();
+    const [articles, setArticles] = useState<Array<Article>>();
+    const [pageSize] = useState(3);
+    const [totalItems, setTotalItems] = useState(0);
     const [loading, setLoading] = useState(false);
-    const [page, setPage] = useState<number>(1);  // 页码
-    const [totalPages, setTotalPages] = useState<number>(0); // 总页数
+    const [page, setPage] = useState<number>(1);
+    const [totalPages, setTotalPages] = useState<number>(0);
 
-
+    // 数据请求
     useEffect(() => {
-        setLoading(true); // 开始加载数据
+        setLoading(true);
         api()
             .get("/articles", {
-                params: { page: page - 1, size: pageSize } // 后端接口要求 page 从 0 开始
+                params: { page: page - 1, size: pageSize }
             })
             .then((res) => {
                 const r = res.data;
                 setArticles(r.data || []);
-                let userName = r.data.map((item: any) => item.author.username);
-                userName = userName.reverse(); // 反转用户名数组，使得与文章顺序一致
+                let userName = r.data.map((item: Article) => item?.author?.username);
+                userName = userName.reverse();
                 setUsers(userName);
-                setTotalPages(r.totalPages || 0);
-                setTotalItems(r.totalItems || 0);
+                setTotalPages(r.totalPages);
+                setTotalItems(r.totalItems);
             })
-            .finally(() => setLoading(false)); // 数据加载完成
+            .finally(() => setLoading(false));
     }, [page, pageSize]);
 
     return (
@@ -196,9 +196,9 @@ export default function HomePage() {
                 {/* 分页控件 */}
                 <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
                     <Pagination
-                        count={totalPages} // 总页数
+                        count={totalPages} // 确保这是总页数
                         page={page} // 当前页
-                        onChange={(_, value) => setPage(value)} // 页码改变事件，_ 表示忽略 event
+                        onChange={(_, value) => setPage(value)} // 页码改变事件处理
                         color="primary"
                         variant="outlined"
                         shape="rounded"
@@ -209,7 +209,7 @@ export default function HomePage() {
             {/* 分页信息 */}
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mt: 2 }}>
                 <Typography variant="body2" sx={{ mx: 2 }}>
-                    共 {totalItems} 篇文章，当前第 {page} 页 / 共 {totalPages} 页
+                    共 {totalItems} 篇文章，当前第 {page} 页
                 </Typography>
             </Box>
         </Container>
