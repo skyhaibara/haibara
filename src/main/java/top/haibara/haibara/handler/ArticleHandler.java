@@ -83,48 +83,4 @@ public class ArticleHandler {
         res.put("code", Response.Status.OK);
         return Response.status(Response.Status.OK).entity(res).build();
     }
-
-    @GET
-    @Path("/")
-    @Secured({"admin","user"})
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getPaginatedArticles(
-            @QueryParam("page") @DefaultValue("1") int page,
-            @QueryParam("size") @DefaultValue("5") int size) {
-        // 校验分页参数
-        if (page < 1 || size < 1) {
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("Page number and size must be greater than 0")
-                    .build();
-        }
-
-        // 调整分页参数，确保从第一页开始
-        int pageAdjusted = page < 1 ? 1 : page;
-
-        try {
-            // 获取分页数据
-            List<Article> articles = articleRepository.findPaginatedArticles(pageAdjusted, size);
-
-            // 获取总条数
-            long totalItems = articleRepository.countTotalArticles();
-
-            // 计算总页数
-            int totalPages = (int) Math.ceil((double) totalItems / size);
-
-            // 返回分页数据和总条数、总页数
-            Map<String, Object> res = new HashMap<>();
-            res.put("code", Response.Status.OK.getStatusCode());
-            res.put("data", articles);
-            res.put("totalItems", totalItems);
-            res.put("totalPages", totalPages);
-
-            return Response.status(Response.Status.OK).entity(res).build();
-        } catch (Exception e) {
-            // 异常处理
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("Error fetching articles: " + e.getMessage())
-                    .build();
-        }
-    }
-
 }
